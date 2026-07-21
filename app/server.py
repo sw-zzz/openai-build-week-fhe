@@ -19,7 +19,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / "app"
 FHE = ROOT / "fhe"
-BIN = FHE / "nb_out" / "build-arm64"
+BIN = FHE / "nb_out" / "build"
 SLOTS = 1024
 NUMERIC_FEATURES = 6
 

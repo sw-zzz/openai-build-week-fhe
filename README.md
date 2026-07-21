@@ -30,7 +30,7 @@ This MVP does not conceal metadata such as request timing or count, nor does it 
 Clone with submodules, then run the bootstrap script. It initializes the pinned Niobium client SDK, builds its pinned OpenFHE dependency, and runs the complete local test flow. You need a C++17 compiler, CMake 3.16 or later, and Python 3.
 
 ```bash
-git clone --recurse-submodules <repository-ssh-url>
+git clone --recurse-submodules git@github.com:sw-zzz/openai-build-week-fhe.git
 cd openai-build-week-fhe
 ./scripts/bootstrap.sh
 ```
@@ -71,6 +71,29 @@ Open the local URL printed by the server. The browser communicates only with the
 ## Data and evaluation
 
 The initial catalog is curated from public provider pages. Its sources and limitations are documented in [data/SOURCES.md](data/SOURCES.md). When a public source does not support a numeric scoring input, the corresponding public mask is zeroed rather than guessed.
+
+## Built with Codex and GPT-5.6
+
+This project was built during OpenAI Build Week with Codex running GPT-5.6. The split of work below is deliberate: product judgment and final verification stayed human; design reasoning and implementation speed came from the collaboration.
+
+### Human-led decisions
+
+The founder problem, the privacy boundary, and the evaluation standard were set before any code: public discovery facts (vertical, stage, opportunity type) stay public; concrete operating constraints and conflict names remain a founder-local, encrypted mandate; the secret key and raw values never leave the device; and the output had to be an actionable research shortlist with reasons and cautions — not a cryptography dashboard. "Working" was defined up front as paired scenarios in which identical public filters produce different research orders from private inputs alone.
+
+### Key decisions GPT-5.6 informed
+
+GPT-5.6 was used to reason through design choices before implementation: how to lay out the 62-value encrypted feature vector and pack one opportunity per CKKS SIMD slot; how to decompose scoring into an encrypted total plus four encrypted components (timing, capital/readiness, conflict penalty, eligibility penalty) so explanations stay useful without leaking diagnostics; where the privacy boundary should sit for the fuzzy conflict lookup; and how to construct the paired-founder evaluation cases that `make compare` now runs.
+
+### Where Codex accelerated the build
+
+- **FHE pipeline** — the Niobium DSL programs (`fhe/*.niob`) and the supported DSL → generated CMake → client/server/decrypt workflow, replacing an earlier hand-rolled path.
+- **Local bridge and UI** — the founder-side bridge (`app/server.py`) that encodes, encrypts, and decrypts locally, and the founder-facing app (`app/`).
+- **Portability** — pinning the Niobium client as a submodule, removing machine-specific paths and fixed ARM compiler settings, and `scripts/bootstrap.sh` for a fresh-clone setup.
+- **Verification harness and docs** — the plaintext reference and comparison harness (`harness/verify_scores.py`, `harness/compare_examples.py`, `harness/validate_catalog.py`) and iteration on tests and documentation.
+
+### Independently verified
+
+The final claims were checked without relying on the assistant: encrypted-versus-plaintext ranking agreement within CKKS's expected approximation (`make test`), three fixed-public paired scenarios (`make compare`), and a fresh-clone bootstrap run on a clean machine. The Codex `/feedback` session ID covering core functionality is included in the Devpost submission.
 
 ### Developer options
 
