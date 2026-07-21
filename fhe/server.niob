@@ -1,0 +1,71 @@
+use shared::*
+
+// The server receives ciphertext only. Its catalog remains a plaintext matrix
+// on server storage: one opportunity per SIMD slot, one feature per column.
+// Numeric fit is squared distance; private conflict and eligibility signals
+// add penalties. The fixed component outputs support client-only explanation.
+@server @stage("score_opportunities")
+fn score_opportunities(inst: Instance)
+    -> reads(CryptoParams, EncryptedFingerprint), writes(EncryptedMatchScores)
+{
+    let encrypted = load(EncryptedFingerprint, from: encdir(inst)).features
+    let profiles = load_matrix<f64>(profile_file(inst), inst.n_features)
+    let masks = load_matrix<f64>(score_masks_file(inst), 6)
+    let timing: enc<vec<f64>> = zero()
+    let capital_readiness: enc<vec<f64>> = zero()
+    let conflict: enc<vec<f64>> = zero()
+    let eligibility: enc<vec<f64>> = zero()
+
+    for feature in 0..6 {
+        let target = profiles[0..inst.n_slots, feature]
+        let mask = masks[0..inst.n_slots, feature]
+        let difference = encrypted[feature] * mask - target
+        if feature == 0 {
+            timing = timing + difference * difference
+        } else {
+            capital_readiness = capital_readiness + difference * difference
+        }
+    }
+
+    // The public conflict dictionary occupies features 6–59. The final two
+    // flags are separate, encrypted eligibility-risk indicators.
+    for feature in 6..60 {
+        let portfolio_flag = profiles[0..inst.n_slots, feature]
+        conflict = conflict + encrypted[feature] * portfolio_flag
+    }
+
+    for feature in 60..inst.n_features {
+        let eligibility_flag = profiles[0..inst.n_slots, feature]
+        eligibility = eligibility + encrypted[feature] * eligibility_flag
+    }
+
+    // Repeated addition applies a decisive penalty without introducing an
+    // extra scaling multiplication beyond the depth-one circuit.
+    let conflict_penalty = conflict + conflict
+    let eligibility_penalty = eligibility + eligibility
+    return EncryptedMatchScores {
+        scores: timing + capital_readiness + conflict_penalty + eligibility_penalty,
+        timing,
+        capital_readiness,
+        conflict_penalty,
+        eligibility_penalty,
+    }
+}
+
+// Fuzzy entity resolution: raw text is featurized locally, encrypted, and
+// compared with a plaintext public entity index. The client decrypts and asks
+// the founder to confirm any candidate; this is never an automatic conflict.
+@server @stage("fuzzy_lookup")
+fn fuzzy_lookup(inst: Instance)
+    -> reads(CryptoParams, EncryptedEntityQuery), writes(EncryptedScores)
+{
+    let encrypted = load(EncryptedEntityQuery, from: encdir(inst)).features
+    let entities = load_matrix<f64>(entity_index_file(inst), inst.n_entity_features)
+    let distance: enc<vec<f64>> = zero()
+    for feature in 0..inst.n_entity_features {
+        let target = entities[0..inst.n_slots, feature]
+        let difference = encrypted[feature] - target
+        distance = distance + difference * difference
+    }
+    return EncryptedScores { scores: distance }
+}

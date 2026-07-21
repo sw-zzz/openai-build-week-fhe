@@ -1,0 +1,109 @@
+use shared::*
+
+scheme CKKS {
+    security: 128-classic
+    key_dist: uniform_ternary
+    scaling: flexible_auto
+    precision: 42
+    first_mod: 57
+    depth: 2
+}
+
+requires { add, mul }
+
+@client @stage("key_generation")
+fn generate_keys(inst: Instance) -> writes(CryptoParams)
+{
+    if inst.profile == Toy { scheme.override(security: not_set) }
+    let keys = keygen()
+    save_secret_key(keys.secret, keydir(inst) / "sk.bin")
+    return CryptoParams {
+        context: keys.context,
+        public_key: keys.public,
+        eval_mult_key: keys.eval_mult,
+    }
+}
+
+// The local client has already converted the human-friendly brief to a
+// fixed-length vector and replicated it across all SIMD slots.
+@client @stage("encrypt_fingerprint")
+fn encrypt_fingerprint(inst: Instance)
+    -> reads(CryptoParams), writes(EncryptedFingerprint)
+{
+    let params = load(CryptoParams, from: keydir(inst))
+    let matrix = load_matrix<f64>(fingerprint_file(inst), inst.n_features)
+    return EncryptedFingerprint {
+        features: for feature in 0..inst.n_features {
+            let column: vec<f64> = matrix[0..inst.n_slots, feature]
+            encrypt(params.public_key, column)
+        }
+    }
+}
+
+@client @stage("encrypt_entity_query")
+fn encrypt_entity_query(inst: Instance)
+    -> reads(CryptoParams), writes(EncryptedEntityQuery)
+{
+    let params = load(CryptoParams, from: keydir(inst))
+    let matrix = load_matrix<f64>(entity_query_file(inst), inst.n_entity_features)
+    return EncryptedEntityQuery {
+        features: for feature in 0..inst.n_entity_features {
+            let column: vec<f64> = matrix[0..inst.n_slots, feature]
+            encrypt(params.public_key, column)
+        }
+    }
+}
+
+@client @stage("decrypt_scores")
+fn decrypt_scores(inst: Instance)
+    -> reads(EncryptedMatchScores), writes_plaintext(iodir(inst) / "scores.bin")
+{
+    let sk = load_secret_key(keydir(inst) / "sk.bin")
+    let encrypted = load(EncryptedMatchScores, from: encdir(inst))
+    return decrypt(sk, encrypted.scores)
+}
+
+@client @stage("decrypt_timing")
+fn decrypt_timing(inst: Instance)
+    -> reads(EncryptedMatchScores), writes_plaintext(iodir(inst) / "timing.bin")
+{
+    let sk = load_secret_key(keydir(inst) / "sk.bin")
+    let encrypted = load(EncryptedMatchScores, from: encdir(inst))
+    return decrypt(sk, encrypted.timing)
+}
+
+@client @stage("decrypt_capital_readiness")
+fn decrypt_capital_readiness(inst: Instance)
+    -> reads(EncryptedMatchScores), writes_plaintext(iodir(inst) / "capital_readiness.bin")
+{
+    let sk = load_secret_key(keydir(inst) / "sk.bin")
+    let encrypted = load(EncryptedMatchScores, from: encdir(inst))
+    return decrypt(sk, encrypted.capital_readiness)
+}
+
+@client @stage("decrypt_conflict_penalty")
+fn decrypt_conflict_penalty(inst: Instance)
+    -> reads(EncryptedMatchScores), writes_plaintext(iodir(inst) / "conflict_penalty.bin")
+{
+    let sk = load_secret_key(keydir(inst) / "sk.bin")
+    let encrypted = load(EncryptedMatchScores, from: encdir(inst))
+    return decrypt(sk, encrypted.conflict_penalty)
+}
+
+@client @stage("decrypt_eligibility_penalty")
+fn decrypt_eligibility_penalty(inst: Instance)
+    -> reads(EncryptedMatchScores), writes_plaintext(iodir(inst) / "eligibility_penalty.bin")
+{
+    let sk = load_secret_key(keydir(inst) / "sk.bin")
+    let encrypted = load(EncryptedMatchScores, from: encdir(inst))
+    return decrypt(sk, encrypted.eligibility_penalty)
+}
+
+@client @stage("decrypt_fuzzy_scores")
+fn decrypt_fuzzy_scores(inst: Instance)
+    -> reads(EncryptedScores), writes_plaintext(iodir(inst) / "scores.bin")
+{
+    let sk = load_secret_key(keydir(inst) / "sk.bin")
+    let encrypted = load(EncryptedScores, from: encdir(inst))
+    return decrypt(sk, encrypted.scores)
+}

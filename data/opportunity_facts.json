@@ -1,0 +1,119 @@
+{
+  "schema_version": "1.0",
+  "last_checked": "2026-07-17",
+  "purpose": "Source-backed public facts used to improve catalog quality. This does not encode private founder inputs or claim an organization's decision criteria.",
+  "records": {
+    "yc": {
+      "application_geography": "Global applications",
+      "delivery": "Three-month, in-person batch in San Francisco",
+      "published_capital": "$500,000 investment per company",
+      "published_stage_signal": "YC says it funds companies from idea stage through earlier scale-up stages",
+      "source": "https://www.ycombinator.com/faq"
+    },
+    "sbir-sttr": {
+      "application_geography": "United States small businesses; eligibility must be confirmed for each proposal",
+      "funding_type": "Non-dilutive R&D funding",
+      "published_capital": "Up to $305,000 for Phase I; Phase II may be up to $1,250,000",
+      "published_stage_signal": "Prototype or proof-of-concept R&D over six to 18 months for Phase I",
+      "eligibility_risk_flags": ["team_size_500_or_more", "possible_institutional_control"],
+      "source": "https://seedfund.nsf.gov/solicitation-eligibility/"
+    },
+    "eic-accelerator": {
+      "application_geography": "Eligibility depends on Horizon Europe rules; verify current applicant eligibility",
+      "funding_type": "Grant, equity, or blended finance",
+      "published_capital": "Grant component below €2.5M; equity investments up to €10M",
+      "published_stage_signal": "Innovation activities at technology readiness levels 6–8",
+      "source": "https://eic.ec.europa.eu/eic-funding-opportunities/eic-accelerator_en"
+    },
+    "masschallenge-switzerland": {
+      "application_geography": "Open to startups from all industries and geographies",
+      "delivery": "Mostly online, with required in-person Switzerland activities",
+      "funding_type": "No application fee and no equity taken; cash prizes and in-kind awards may be available",
+      "published_stage_signal": "Viable, scalable, impact-oriented startups; the 2026 accelerator page lists less than CHF 2M capital raised and sales",
+      "source": "https://masschallenge.org/programs-switzerland/"
+    },
+    "techstars-ai-health": {
+      "delivery": "Techstars describes a three-month, mentorship-driven accelerator format; verify the specific program's current cohort details",
+      "published_capital": "$220,000 accelerator investment offer for future accelerator programs, subject to stated terms and program exceptions",
+      "source": "https://www.techstars.com/accelerator-hub"
+    },
+    "techstars-energytech": {
+      "delivery": "Techstars describes a three-month, mentorship-driven accelerator format; verify the specific program's current cohort details",
+      "published_capital": "$220,000 accelerator investment offer for future accelerator programs, subject to stated terms and program exceptions",
+      "source": "https://www.techstars.com/accelerator-hub"
+    },
+    "techstars-anywhere": {
+      "delivery": "Techstars describes a three-month, mentorship-driven accelerator format; verify the specific program's current cohort details",
+      "published_capital": "$220,000 accelerator investment offer for future accelerator programs, subject to stated terms and program exceptions",
+      "source": "https://www.techstars.com/accelerator-hub"
+    },
+    "cdl-ai": {
+      "published_focus": "Creative Destruction Lab's AI stream is a program stream for science- and technology-based ventures working in AI",
+      "delivery": "Mentor-led program stream; check the relevant location and intake cycle",
+      "source": "https://creativedestructionlab.com/streams/"
+    },
+    "cdl-computational-health": {
+      "published_focus": "Creative Destruction Lab's Computational Health stream focuses on computational-health ventures",
+      "delivery": "Mentor-led program stream; check the relevant location and intake cycle",
+      "source": "https://creativedestructionlab.com/streams/"
+    },
+    "hax": {
+      "published_focus": "Pre-seed hard-tech program spanning energy, advanced computing, health, manufacturing, and transportation",
+      "funding_type": "Venture program; confirm current investment terms and location-specific format",
+      "source": "https://hax.co/"
+    },
+    "masschallenge-uk": {
+      "application_geography": "Requires a strategic UK connection; the program also includes travel to London and Switzerland",
+      "delivery": "In-person events in London and Lausanne plus online activities over the program",
+      "funding_type": "No equity taken; non-dilutive prizes may be available",
+      "published_stage_signal": "The 2026 page lists less than £3M capital raised and £3M sales",
+      "source": "https://masschallenge.org/programs-united-kingdom/"
+    },
+    "alchemist-japan": {
+      "application_geography": "Tokyo-based program; its page says startups around the world, including Asia, are eligible",
+      "delivery": "Three-month, in-person accelerator in Tokyo",
+      "published_focus": "Technical, B2B-focused enterprise startups with global potential",
+      "source": "https://www.alchemistaccelerator.com/japan"
+    },
+    "aws-activate": {
+      "funding_type": "Startup ecosystem support including AWS credits, support credits, offers, and guidance",
+      "published_stage_signal": "AWS describes its Founders tier for early-stage startups, including self-funded and funded companies up to Series A",
+      "source": "https://aws.amazon.com/startups/learn/14-reasons-to-fall-in-love-with-aws-activate"
+    },
+    "google-cloud-startups": {
+      "funding_type": "Cloud credits, technical training, startup experts, perks, and business support",
+      "published_stage_signal": "The Start tier is described for digital-native startups with a working MVP, clear business model, and plans to seek venture funding",
+      "source": "https://cloud.google.com/startup/faq"
+    },
+    "microsoft-founders-hub": {
+      "funding_type": "Technical guidance, AI resources, and startup opportunities aimed at enterprise readiness",
+      "published_stage_signal": "Microsoft describes resources from first prototype to global scale",
+      "source": "https://learn.microsoft.com/en-us/startups/"
+    },
+    "nvidia-inception": {
+      "funding_type": "Startup ecosystem program; verify current regional benefits and eligibility",
+      "published_focus": "Companies building with AI and accelerated computing",
+      "source": "https://www.nvidia.com/en-us/startups/"
+    },
+    "a16z": {
+      "funding_type": "Multi-stage technology investment firm; public firm information is not an application or an investment offer",
+      "published_focus": "AI, bio and healthcare, consumer, crypto, enterprise, fintech, games, infrastructure, and American dynamism",
+      "source": "https://a16z.com/about/"
+    },
+    "dcvc": {
+      "funding_type": "Deep-tech venture firm; public firm information is not an application or an investment offer",
+      "published_focus": "AI, compute, climate, biotech, cybersecurity, manufacturing, agriculture, quantum, space, and related technical sectors",
+      "source": "https://www.dcvc.com/"
+    },
+    "pantera": {
+      "funding_type": "Blockchain-focused investment firm with venture equity and early-stage token strategies",
+      "published_focus": "Digital assets and blockchain companies",
+      "source": "https://panteracapital.com/"
+    },
+    "multicoin-capital": {
+      "funding_type": "Investment firm; public firm information is not an application or an investment offer",
+      "published_focus": "Cryptographic primitives and FHE-related investments are publicly described by the firm",
+      "source": "https://multicoin.capital/2024/03/07/the-holy-grail-of-cryptography/"
+    }
+  }
+}

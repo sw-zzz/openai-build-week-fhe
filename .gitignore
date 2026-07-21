@@ -1,0 +1,12 @@
+# Python caches
+__pycache__/
+*.py[cod]
+
+# Generated FHE artifacts, keys, ciphertexts, and decrypted test output
+fhe/nb_out/
+fhe/io/
+io/
+
+# Local editor and operating-system files
+.DS_Store
+.vscode/

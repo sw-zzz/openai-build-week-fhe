@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Source-backed public score targets and masks. A mask of 0 means the field is not scored for that opportunity.",
+  "fields": ["program_window_months", "raise_millions", "dilution_percent", "capital_raised_millions", "revenue_millions", "trl"],
+  "profiles": {
+    "techstars-ai-health": {"values": [3, 0.22, 25, 0, 0, 0], "masks": [1, 1, 1, 0, 0, 0]},
+    "techstars-energytech": {"values": [3, 0.22, 25, 0, 0, 0], "masks": [1, 1, 1, 0, 0, 0]},
+    "techstars-anywhere": {"values": [3, 0.22, 25, 0, 0, 0], "masks": [1, 1, 1, 0, 0, 0]},
+    "yc": {"values": [3, 0.5, 25, 0, 0, 0], "masks": [1, 1, 1, 0, 0, 0]},
+    "cdl-ai": {"values": [0, 0, 0, 0, 0, 0], "masks": [0, 0, 0, 0, 0, 0]},
+    "cdl-computational-health": {"values": [0, 0, 0, 0, 0, 0], "masks": [0, 0, 0, 0, 0, 0]},
+    "hax": {"values": [0, 0, 25, 0, 0, 0], "masks": [0, 0, 1, 0, 0, 0]},
+    "masschallenge-uk": {"values": [0, 0, 0, 3, 3, 0], "masks": [0, 0, 1, 1, 1, 0]},
+    "masschallenge-switzerland": {"values": [0, 0, 0, 2, 2, 0], "masks": [0, 0, 1, 1, 1, 0]},
+    "alchemist-japan": {"values": [3, 0, 0, 0, 0, 0], "masks": [1, 0, 0, 0, 0, 0]},
+    "sbir-sttr": {"values": [12, 1.25, 0, 0, 0, 0], "masks": [1, 1, 1, 0, 0, 0]},
+    "eic-accelerator": {"values": [0, 2.5, 12.5, 0, 0, 7], "masks": [0, 1, 1, 0, 0, 1]},
+    "aws-activate": {"values": [0, 0, 0, 0, 0, 0], "masks": [0, 0, 1, 0, 0, 0]},
+    "google-cloud-startups": {"values": [0, 0, 0, 0, 0, 0], "masks": [0, 0, 1, 0, 0, 0]},
+    "microsoft-founders-hub": {"values": [0, 0, 0, 0, 0, 0], "masks": [0, 0, 1, 0, 0, 0]},
+    "nvidia-inception": {"values": [0, 0, 0, 0, 0, 0], "masks": [0, 0, 1, 0, 0, 0]},
+    "a16z": {"values": [0, 0, 25, 0, 0, 0], "masks": [0, 0, 1, 0, 0, 0]},
+    "dcvc": {"values": [0, 0, 25, 0, 0, 0], "masks": [0, 0, 1, 0, 0, 0]},
+    "pantera": {"values": [0, 0, 25, 0, 0, 0], "masks": [0, 0, 1, 0, 0, 0]},
+    "multicoin-capital": {"values": [0, 0, 25, 0, 0, 0], "masks": [0, 0, 1, 0, 0, 0]}
+  }
+}

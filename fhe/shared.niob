@@ -1,0 +1,63 @@
+// StealthMatch: an encrypted founder mandate and one plaintext opportunity
+// profile per SIMD slot. The first six features are private numeric values,
+// followed by sparse private conflict-entity flags and two eligibility-risk
+// flags. The circuit stays shallow (multiplicative depth 2).
+
+enum Profile { Toy, Full }
+
+struct Instance {
+    profile: Profile,
+    ring_dim: u32,
+    n_slots: u32,
+    n_features: u32,
+    n_entity_features: u32,
+}
+
+fn instance(profile: Profile) -> Instance {
+    match profile {
+        // logQ ~= 99 needs at least N=4096 even with security disabled.
+        Toy  => Instance { profile, ring_dim: 4096,  n_slots: 1024,  n_features: 62, n_entity_features: 32 },
+        Full => Instance { profile, ring_dim: 65536, n_slots: 32768, n_features: 62, n_entity_features: 32 },
+    }
+}
+
+fn instance_name(profile: Profile) -> string {
+    match profile { Toy => "toy", Full => "full" }
+}
+
+fn iodir(inst: Instance) -> path { root() / "io" / instance_name(inst.profile) }
+fn keydir(inst: Instance) -> path { iodir(inst) / "keys" }
+fn encdir(inst: Instance) -> path { iodir(inst) / "encrypted" }
+fn fingerprint_file(inst: Instance) -> path { iodir(inst) / "fingerprint.bin" }
+fn profile_file(inst: Instance) -> path { iodir(inst) / "opportunities.bin" }
+fn score_masks_file(inst: Instance) -> path { iodir(inst) / "score_masks.bin" }
+fn entity_query_file(inst: Instance) -> path { iodir(inst) / "entity_query.bin" }
+fn entity_index_file(inst: Instance) -> path { iodir(inst) / "entity_index.bin" }
+
+wire CryptoParams {
+    context: CryptoContext,
+    public_key: PublicKey,
+    eval_mult_key: EvalMultKey,
+}
+
+wire EncryptedFingerprint {
+    features: vec<enc<vec<f64>>>,
+}
+
+// Fuzzy entity lookup has one encrypted distance output.
+wire EncryptedScores {
+    scores: enc<vec<f64>>,
+}
+
+// Match scoring returns a fixed set of encrypted, coarse components. Only the
+// founder client decrypts them to form a local explanation; the scorer sees
+// neither the component values nor the explanation selected.
+wire EncryptedMatchScores {
+    scores: enc<vec<f64>>,
+    timing: enc<vec<f64>>,
+    capital_readiness: enc<vec<f64>>,
+    conflict_penalty: enc<vec<f64>>,
+    eligibility_penalty: enc<vec<f64>>,
+}
+
+wire EncryptedEntityQuery { features: vec<enc<vec<f64>>> }
