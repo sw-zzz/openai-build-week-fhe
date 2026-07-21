@@ -30,7 +30,7 @@ This MVP does not conceal metadata such as request timing or count, nor does it 
 Clone with submodules, then run the bootstrap script. It initializes the pinned Niobium client SDK, builds its pinned OpenFHE dependency, and runs the complete local test flow. You need a C++17 compiler, CMake 3.16 or later, and Python 3.
 
 ```bash
-git clone --recurse-submodules git@github.com:sw-zzz/openai-build-week-fhe.git
+git clone --recurse-submodules https://github.com/sw-zzz/openai-build-week-fhe.git
 cd openai-build-week-fhe
 ./scripts/bootstrap.sh
 ```
