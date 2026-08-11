@@ -4,7 +4,13 @@ use shared::*
 // on server storage: one opportunity per SIMD slot, one feature per column.
 // Numeric fit is squared distance; private conflict and eligibility signals
 // add penalties. The fixed component outputs support client-only explanation.
+// @hardware records the blind-scoring circuit as a FHETCH trace so it can be
+// replayed on the local functional simulator (offline) or, once the trace is
+// submitted through `fog submit --target=FOG`, on Niobium hardware. The cache
+// is keyed by workload_size: the circuit shape is fixed per instance size, so
+// one recording per size is reused across founder inputs at replay time.
 @server @stage("score_opportunities")
+@hardware(cache_key: ["workload_size"])
 fn score_opportunities(inst: Instance)
     -> reads(CryptoParams, EncryptedFingerprint), writes(EncryptedMatchScores)
 {
@@ -56,6 +62,7 @@ fn score_opportunities(inst: Instance)
 // compared with a plaintext public entity index. The client decrypts and asks
 // the founder to confirm any candidate; this is never an automatic conflict.
 @server @stage("fuzzy_lookup")
+@hardware(cache_key: ["workload_size"])
 fn fuzzy_lookup(inst: Instance)
     -> reads(CryptoParams, EncryptedEntityQuery), writes(EncryptedScores)
 {

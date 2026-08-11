@@ -3,7 +3,11 @@
 // followed by sparse private conflict-entity flags and two eligibility-risk
 // flags. The circuit stays shallow (multiplicative depth 2).
 
-enum Profile { Toy, Full }
+// A single profile at the Niobium hardware ring dimension. The scoring stage is
+// @hardware, and Niobium requires N=65536 with 128-bit security, so there is no
+// smaller/insecure toy profile: the CPU, local-simulator, and Fog paths all use
+// these parameters.
+enum Profile { Full }
 
 struct Instance {
     profile: Profile,
@@ -15,14 +19,12 @@ struct Instance {
 
 fn instance(profile: Profile) -> Instance {
     match profile {
-        // logQ ~= 99 needs at least N=4096 even with security disabled.
-        Toy  => Instance { profile, ring_dim: 4096,  n_slots: 1024,  n_features: 62, n_entity_features: 32 },
         Full => Instance { profile, ring_dim: 65536, n_slots: 32768, n_features: 62, n_entity_features: 32 },
     }
 }
 
 fn instance_name(profile: Profile) -> string {
-    match profile { Toy => "toy", Full => "full" }
+    match profile { Full => "full" }
 }
 
 fn iodir(inst: Instance) -> path { root() / "io" / instance_name(inst.profile) }

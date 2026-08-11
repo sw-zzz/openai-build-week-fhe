@@ -7,6 +7,14 @@ fhe/nb_out/
 fhe/io/
 io/
 
+# FHETCH record/replay traces and Fog run artifacts (workload dirs hold the
+# .fhetch trace, tagged inputs/keys, and reconstructed probes). Never commit:
+# they can embed absolute local paths, and are recreated by `make sim`/`make fog`.
+fhe/*_workload_*/
+fhe/global_key_cache_*/
+fhe/_workload_size_*/
+fog_*.log
+
 # Local editor and operating-system files
 .DS_Store
 .vscode/
