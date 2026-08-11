@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PROFILES = {0: "toy", 1: "full"}
+PROFILES = {0: "full"}
 
 
 def main(profile: int = 0) -> int:

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import math
+import shutil
 import struct
 import subprocess
 from http import HTTPStatus
@@ -20,7 +21,9 @@ ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / "app"
 FHE = ROOT / "fhe"
 BIN = FHE / "nb_out" / "build"
-SLOTS = 1024
+# The single Full profile: N=65536, 32768 SIMD slots (one opportunity per slot).
+IO = FHE / "io" / "full"
+SLOTS = 32768
 NUMERIC_FEATURES = 6
 
 # Concrete values are normalized locally into [0, 1]. The scorer never sees
@@ -123,11 +126,11 @@ def fuzzy_resolve(value: str) -> dict:
     ]
     index = [entity_vector(name) for _, name in variants]
     index += [[0.0] * ENTITY_FEATURES] * (SLOTS - len(index))
-    write_matrix(FHE / "io" / "toy" / "entity_query.bin", [query] * SLOTS)
-    write_matrix(FHE / "io" / "toy" / "entity_index.bin", index)
+    write_matrix(IO / "entity_query.bin", [query] * SLOTS)
+    write_matrix(IO / "entity_index.bin", index)
     for command in ("key_generation", "encrypt_entity_query", "fuzzy_lookup", "decrypt_fuzzy_scores"):
         run(command)
-    raw = (FHE / "io" / "toy" / "scores.bin").read_bytes()
+    raw = (IO / "scores.bin").read_bytes()
     scores = struct.unpack(f"<{len(raw) // 8}d", raw)[:len(variants)]
     best_by_entity: dict[str, tuple[dict, float]] = {}
     for (entry, _name), score in zip(variants, scores):
@@ -148,12 +151,12 @@ def fuzzy_resolve(value: str) -> dict:
 def prepare_fingerprint(fingerprint: list[float]) -> None:
     if len(fingerprint) != FEATURES or any(not isinstance(value, (int, float)) for value in fingerprint):
         raise ValueError(f"private mandate must contain exactly {FEATURES} encrypted feature values")
-    write_matrix(FHE / "io" / "toy" / "fingerprint.bin", [fingerprint] * SLOTS)
+    write_matrix(IO / "fingerprint.bin", [fingerprint] * SLOTS)
 
 
 def prepare_score_masks(opportunities: list[dict]) -> None:
     masks = [opportunity_masks(item) for item in opportunities]
-    write_matrix(FHE / "io" / "toy" / "score_masks.bin", masks + [[0.0] * NUMERIC_FEATURES] * (SLOTS - len(masks)))
+    write_matrix(IO / "score_masks.bin", masks + [[0.0] * NUMERIC_FEATURES] * (SLOTS - len(masks)))
 
 
 def opportunity_profile(item: dict) -> list[float]:
@@ -281,12 +284,23 @@ def component_reason(item: dict, components: dict[str, float]) -> str:
     return "Its published funding and readiness criteria were a stronger match for your private mandate."
 
 
+# The @hardware server stages: on their first run they record a FHETCH trace,
+# and a subsequent run would replay it (which needs fhetch_sim and the recorded
+# inputs). The bridge scores fresh inputs every request, so we clear the
+# size-keyed trace cache before these stages to force a fresh recording, i.e.
+# real FHE compute on CPU. (Fog runs go through the CLI `make fog`, not here.)
+HARDWARE_STAGES = ("score_opportunities", "fuzzy_lookup")
+
+
 def run(command: str) -> None:
+    if command in HARDWARE_STAGES:
+        for cache in FHE.glob(f"{command}_workload_*"):
+            shutil.rmtree(cache, ignore_errors=True)
     subprocess.run([str(BIN / command), "0"], cwd=FHE, check=True, capture_output=True)
 
 
 def encrypted_match(fingerprint: list[float], eligible: list[int] | None = None, filters: dict | None = None) -> dict:
-    if not (FHE / "io" / "toy" / "opportunities.bin").exists():
+    if not (IO / "opportunities.bin").exists():
         raise RuntimeError("run `make prepare` once before starting the local bridge")
     opportunities = json.loads((ROOT / "data" / "opportunities.json").read_text())
     prepare_fingerprint(fingerprint)
@@ -298,7 +312,7 @@ def encrypted_match(fingerprint: list[float], eligible: list[int] | None = None,
         run(command)
 
     def read_component(name: str) -> tuple[float, ...]:
-        raw = (FHE / "io" / "toy" / f"{name}.bin").read_bytes()
+        raw = (IO / f"{name}.bin").read_bytes()
         return struct.unpack(f"<{len(raw) // 8}d", raw)[:len(opportunities)]
 
     scores = read_component("scores")

@@ -12,7 +12,7 @@ import struct
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PROFILES = {0: ("toy", 1024), 1: ("full", 32768)}
+PROFILES = {0: ("full", 32768)}
 REGISTRY = json.loads((ROOT / "data" / "conflict_registry.json").read_text())
 CONFLICT_ENTITIES = tuple(entity["id"] for entity in REGISTRY["entities"])
 CONFLICT_RELATIONSHIPS = REGISTRY["relationships"]

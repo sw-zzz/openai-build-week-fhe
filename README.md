@@ -1,5 +1,7 @@
 # StealthMatch
 
+> ▶ **Demo video and project overview:** [devpost.com/software/stealthmatch](https://devpost.com/software/stealthmatch)
+
 StealthMatch is a privacy-preserving startup-support discovery prototype. It helps founders research investors, accelerators, grants, and ecosystem programs without submitting confidential operating constraints or conflict concerns to a matching service in plaintext.
 
 Public discovery filters—such as vertical, company stage, and opportunity type—narrow the catalog. The encrypted mandate then refines the shortlist using details that can genuinely be sensitive before an NDA: fundraising constraints, operating runway, timing, readiness, ownership/control ranges, and names of companies, investors, or strategic buyers to avoid.
@@ -27,18 +29,19 @@ This MVP does not conceal metadata such as request timing or count, nor does it 
 
 ## Run locally
 
-Clone with submodules, then run the bootstrap script. It initializes the pinned Niobium client SDK, builds its pinned OpenFHE dependency, and runs the complete local test flow. You need a C++17 compiler, CMake 3.16 or later, and Python 3.
+StealthMatch builds against [niobium-client](https://github.com/NiobiumInc/niobium-client), an external prerequisite that provides the `nbc` DSL compiler, the instrumented OpenFHE, and the FHETCH record/replay runtime. Build that checkout once (its own `make release`), then point `NIOBIUM_CLIENT_ROOT` at it. You also need a C++17 compiler, CMake 3.16 or later, and Python 3.
 
 ```bash
-git clone --recurse-submodules https://github.com/sw-zzz/openai-build-week-fhe.git
+git clone https://github.com/sw-zzz/openai-build-week-fhe.git
 cd openai-build-week-fhe
-./scripts/bootstrap.sh
+NIOBIUM_CLIENT_ROOT=/path/to/niobium-client make test
 ```
 
-The bundled SDK is at `third_party/niobium-client`. To use a separate compatible checkout, set `NIOBIUM_CLIENT_ROOT`; to use a different Python executable, set `PYTHON`:
+Override the toolchain when the defaults are wrong for your platform. On macOS / Apple Silicon, use Homebrew's cmake and python (the system ones may be x86_64):
 
 ```bash
-NIOBIUM_CLIENT_ROOT=/path/to/niobium-client PYTHON=python3 make test
+NIOBIUM_CLIENT_ROOT=/path/to/niobium-client \
+  CMAKE=/opt/homebrew/bin/cmake PYTHON=/opt/homebrew/bin/python3 make test
 ```
 
 ### Verify encrypted scoring
@@ -58,6 +61,22 @@ make compare
 ```
 
 Runs three paired-founder scenarios: each pair has the same public filters but different private mandates. It shows how confidential conflicts or operating constraints change the locally ranked opportunities, then confirms that the encrypted and plaintext rankings agree.
+
+### Run blind scoring on the simulator or Niobium hardware
+
+The blind-scoring stage is annotated `@hardware`, so `nbc` records it as a FHETCH
+trace that can be replayed on the local functional simulator or, unchanged, on
+Niobium FPGA hardware through Fog. Both use the full profile (N=65536,
+`HEStd_128_classic`), the same parameters the hardware requires.
+
+```bash
+make sim     # record, then replay on the local simulator, and verify
+make fog     # record, then replay on the FPGA via `fog submit`
+```
+
+`make sim` is the offline path and needs no hardware or network. `make fog`
+needs the `fog` CLI and credentials. See [FOG.md](FOG.md) for the full flow,
+prerequisites, and current status.
 
 To use the UI:
 
@@ -88,12 +107,12 @@ GPT-5.6 was used to reason through design choices before implementation: how to 
 
 - **FHE pipeline** — the Niobium DSL programs (`fhe/*.niob`) and the supported DSL → generated CMake → client/server/decrypt workflow, replacing an earlier hand-rolled path.
 - **Local bridge and UI** — the founder-side bridge (`app/server.py`) that encodes, encrypts, and decrypts locally, and the founder-facing app (`app/`).
-- **Portability** — pinning the Niobium client as a submodule, removing machine-specific paths and fixed ARM compiler settings, and `scripts/bootstrap.sh` for a fresh-clone setup.
+- **Portability** — building against an external niobium-client checkout via `NIOBIUM_CLIENT_ROOT`, and removing machine-specific paths and fixed ARM compiler settings.
 - **Verification harness and docs** — the plaintext reference and comparison harness (`harness/verify_scores.py`, `harness/compare_examples.py`, `harness/validate_catalog.py`) and iteration on tests and documentation.
 
 ### Independently verified
 
-The final claims were checked without relying on the assistant: encrypted-versus-plaintext ranking agreement within CKKS's expected approximation (`make test`), three fixed-public paired scenarios (`make compare`), and a fresh-clone bootstrap run on a clean machine. The Codex `/feedback` session ID covering core functionality is included in the Devpost submission.
+The final claims were checked without relying on the assistant: encrypted-versus-plaintext ranking agreement within CKKS's expected approximation (`make test`), three fixed-public paired scenarios (`make compare`), and a fresh-clone build on a clean machine. The Codex `/feedback` session ID covering core functionality is included in the Devpost submission.
 
 ### Developer options
 
