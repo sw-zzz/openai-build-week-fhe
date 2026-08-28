@@ -11,18 +11,13 @@ scheme CKKS {
 
 requires { add, mul }
 
-@client @stage("key_generation")
-fn generate_keys(inst: Instance) -> writes(CryptoParams)
-{
-    if inst.profile == Toy { scheme.override(security: not_set) }
-    let keys = keygen()
-    save_secret_key(keys.secret, keydir(inst) / "sk.bin")
-    return CryptoParams {
-        context: keys.context,
-        public_key: keys.public,
-        eval_mult_key: keys.eval_mult,
-    }
-}
+// Key generation is hand-rolled in keygen.cpp, not emitted from the DSL. The
+// DSL's keygen unconditionally calls EvalSumKeyGen, which at N=65536 produces a
+// full slot-rotation key set (~150 MB in rk.bin) for cross-slot summation. This
+// circuit is entirely per-slot (one opportunity per SIMD slot; no rotations or
+// sums), so it needs none of those keys, and hand-rolling keygen keeps them out
+// of both the on-disk keys and the Fog upload. keygen.cpp matches this scheme
+// block exactly, so the context stays consistent with the stages below.
 
 // The local client has already converted the human-friendly brief to a
 // fixed-length vector and replicated it across all SIMD slots.
