@@ -37,10 +37,16 @@ CASES = (
     {
         "name": "Deep-tech investor search: confidential strategic conflict",
         "filters": {"industry": ["deeptech"], "stage": "prototype", "support": ["investor"]},
-        "left": {"label": "Founder A", "values": (12, 5, 25, 0, 0, 1), "conflicts": ()},
-        "right": {"label": "Founder B", "values": (12, 5, 25, 0, 0, 1), "conflicts": ("atom-computing", "fervo-energy")},
-        "expect": {"left": ("a16z", "dcvc", "multicoin-capital"), "right": ("a16z", "multicoin-capital", "pantera")},
-        "must_demote": "dcvc",
+        # Both founders share the public filters and the same numeric mandate; only
+        # their confidential conflict lists differ. The deep-tech investors score
+        # identically on public numeric criteria, so the private conflicts are what
+        # separate them: each list is chosen to overlap the investors' public
+        # relationship maps by a distinct count, leaving exactly one investor
+        # unconflicted (a16z for A, dcvc for B) with a clear margin over the rest.
+        "left": {"label": "Founder A", "values": (12, 5, 25, 0, 0, 1), "conflicts": ("atom-computing", "arbitrum", "morpho", "zama", "fhenix", "inco")},
+        "right": {"label": "Founder B", "values": (12, 5, 25, 0, 0, 1), "conflicts": ("solana", "arbitrum", "morpho", "zama", "fhenix", "inco")},
+        "expect": {"left": ("a16z", "eic-accelerator", "yc"), "right": ("dcvc", "eic-accelerator", "yc")},
+        "must_demote": "a16z",
     },
     {
         "name": "Deep-tech grant search: confidential operating constraints",
